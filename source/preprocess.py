@@ -31,7 +31,7 @@ def detect_language(text):
 
 # Main preprocessing function
 def preprocess(sentence, labels=None, lowercase=True, remove_punctuation=False, 
-               remove_numbers=True, tokenize=True, lemmatize=True, use_unified_tokenizer=False):
+               remove_numbers=True, tokenize=True, lemmatize=True, use_unified_tokenizer=True):
     '''
     Task: Given a sentence, apply all the required preprocessing steps
     to compute features for training a classifier. This includes sentence 
