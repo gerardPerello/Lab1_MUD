@@ -37,8 +37,6 @@ if __name__ == "__main__":
     X=raw['Text']
     y=raw['language']
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=seed)
-    print(X_train)
-    print(type(X_train))
     
     print('========')
     print('Split sizes:')
@@ -46,12 +44,16 @@ if __name__ == "__main__":
     print('Test:', len(X_test))
     print('========')
     
+    """
     # Preprocess text (Word granularity only)
     if args.analyzer == 'word':
-        
+        X_train, y_train = preprocess(X_train,y_train)
+        X_test, y_test = preprocess(X_test,y_test)
+    """
+    if args.analyzer == 'word':
         X_train = X_train.apply(lambda sentence: preprocess(sentence, y_train[X_train.index[X_train == sentence].tolist()[0]]))
         X_test = X_test.apply(lambda sentence: preprocess(sentence, y_test[X_test.index[X_test == sentence].tolist()[0]]))
-
+    #"""
    
     #Compute text features
     features, X_train_raw, X_test_raw = compute_features(X_train, 
