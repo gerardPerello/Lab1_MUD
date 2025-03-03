@@ -8,6 +8,8 @@ from sklearn.feature_extraction.text import CountVectorizer
 import scipy
 import numpy as np
 import pandas as pd
+import os
+import csv
 
 def compute_features(X_train, 
                      X_test, 
@@ -110,14 +112,18 @@ def plot_F_Scores(y_test, y_predict):
     f1_macro = f1_score(y_test, y_predict, average='macro')
     f1_weighted = f1_score(y_test, y_predict, average='weighted')
     print("F1: {} (micro), {} (macro), {} (weighted)".format(f1_micro, f1_macro, f1_weighted))
+    return f1_micro,f1_macro,f1_weighted
 
-def plot_Confusion_Matrix(y_test, y_predict, color="Blues"):
+def plot_Confusion_Matrix(y_test, y_predict, voc_size = "0", analyzer = "None", color="Blues", classifier="NaiveBayes"):
     '''
     Task: Given a set of reference and predicted labels plot its confussion matrix
     
     Input: y_test ->  Reference labels
            y_predict -> Predicted labels
            color -> [Optional] Color used for the plot
+           voc_size -> Vocabulary size (used for naming the plot)
+           analyzer -> Tokenization level (used for naming the plot)
+           Classifier -> classifier used (used for naming the plot)
     
     Ouput: Confussion Matrix plot
     '''
@@ -130,11 +136,17 @@ def plot_Confusion_Matrix(y_test, y_predict, color="Blues"):
     df_cm.columns.name = 'Predicted'
     sn.set(font_scale=0.8) # for label size
     sn.set(rc={'figure.figsize':(15, 15)})
-    sn.heatmap(df_cm, cmap=color, annot=True, annot_kws={"size": 12}, fmt='g')# font size
-    plt.show()
+
+    filename = f"out/confusion_marix_{voc_size}_{analyzer}_{classifier}.png"
+    
+    # Guardar la matriz de confusión
+    sn.heatmap(df_cm, cmap=color, annot=True, annot_kws={"size": 12}, fmt='g')
+    plt.title(f'Confusion Matrix - Voc Size: {voc_size}, Analyzer: {analyzer}')
+    plt.savefig(filename)
+    plt.close()
 
 
-def plotPCA(x_train, x_test,y_test, langs):
+def plotPCA(x_train, x_test, y_test, langs, voc_size, analyzer):
     '''
     Task: Given train features train a PCA dimensionality reduction
           (2 dimensions) and plot the test set according to its labels.
@@ -143,6 +155,8 @@ def plotPCA(x_train, x_test,y_test, langs):
            x_test -> Test features
            y_test -> Test labels
            langs -> Set of language labels
+           voc_size -> Vocabulary size (used for naming the plot)
+           analyzer -> Tokenization level (used for naming the plot)
 
     Output: Print the amount of variance explained by the 2 first principal components.
             Plot PCA results by language
@@ -152,13 +166,39 @@ def plotPCA(x_train, x_test,y_test, langs):
     pca.fit(toNumpyArray(x_train))
     pca_test = pca.transform(toNumpyArray(x_test))
     print('Variance explained by PCA:', pca.explained_variance_ratio_)
+
     y_test_list = np.asarray(y_test.tolist())
     for lang in langs:
         pca_x = np.asarray([i[0] for i in pca_test])[y_test_list == lang]
         pca_y = np.asarray([i[1] for i in pca_test])[y_test_list == lang]
         plt.scatter(pca_x,pca_y, label=lang)
     plt.legend(loc="upper left")
-    plt.show()
+    # Crear el nombre de archivo con los parámetros
+    filename = f"out/pca_{voc_size}_{analyzer}.png"
+    
+    # Guardar el gráfico de PCA
+    plt.title(f'PCA - Voc Size: {voc_size}, Analyzer: {analyzer}')
+    plt.savefig(filename)
+    plt.close()
+    return pca.explained_variance_ratio_
 
+
+def setResults(voc_size, analyzer, classifier, f1, f2, f3, coverage, pca):
+    '''
+    Task: Write results to a CSV file
+    Input: 
+        voc_size -> Vocabulary size
+        analyzer -> Tokenization level
+        classifier -> Classifier used
+        f1, f2, f3 -> F-scores
+        coverage -> Coverage
+        pca -> PCA and Explained Variance
+    '''
+    file_exists = os.path.isfile('out/results.csv')
+    with open('out/results.csv', mode='a', newline='') as file:
+        writer = csv.writer(file)
+        if not file_exists:
+            writer.writerow(['voc_size', 'analyzer', 'classifier', 'f1', 'f2', 'f3', 'coverage', 'pca'])
+        writer.writerow([voc_size, analyzer, classifier, f1, f2, f3, coverage, pca])
 
 

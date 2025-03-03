@@ -30,7 +30,7 @@ def detect_language(text):
         return "other"
 
 # Main preprocessing function
-def preprocess(sentence, labels=None, lowercase=True, remove_punctuation=False, 
+def preprocess(sentence, labels=None, lowercase=True, remove_punctuation=True, 
                remove_numbers=True, tokenize=True, lemmatize=True, use_unified_tokenizer=True):
     '''
     Task: Given a sentence, apply all the required preprocessing steps
@@ -44,7 +44,7 @@ def preprocess(sentence, labels=None, lowercase=True, remove_punctuation=False,
     Output: 
     - Preprocessed sentence in string format
     '''
-    
+    return sentence
     # Optional step: Convert text to lowercase
     if lowercase:
         sentence = sentence.lower()
